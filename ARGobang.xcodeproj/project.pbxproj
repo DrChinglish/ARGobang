@@ -12,6 +12,13 @@
 		7135A006285774C00058B454 /* Experience.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 7135A005285774C00058B454 /* Experience.rcproject */; };
 		7135A008285774C40058B454 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7135A007285774C40058B454 /* Assets.xcassets */; };
 		7135A00B285774C40058B454 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7135A00A285774C40058B454 /* Preview Assets.xcassets */; };
+		7135A01228577CD80058B454 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7135A01128577CD80058B454 /* GameState.swift */; };
+		7135A01428578AC20058B454 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7135A01328578AC20058B454 /* Board.swift */; };
+		7135A01628578BEF0058B454 /* Dimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7135A01528578BEF0058B454 /* Dimensions.swift */; };
+		7135A018285794200058B454 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7135A017285794200058B454 /* Util.swift */; };
+		7135A01A2858E34C0058B454 /* ARStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7135A0192858E34C0058B454 /* ARStoryboard.storyboard */; };
+		7135A01C2859C5B20058B454 /* Chess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7135A01B2859C5B20058B454 /* Chess.swift */; };
+		7135A020285A1F870058B454 /* environment.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7135A01F285A1F870058B454 /* environment.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +28,14 @@
 		7135A005285774C00058B454 /* Experience.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = Experience.rcproject; sourceTree = "<group>"; };
 		7135A007285774C40058B454 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7135A00A285774C40058B454 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		7135A01128577CD80058B454 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		7135A01328578AC20058B454 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
+		7135A01528578BEF0058B454 /* Dimensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dimensions.swift; sourceTree = "<group>"; };
+		7135A017285794200058B454 /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		7135A0192858E34C0058B454 /* ARStoryboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = ARStoryboard.storyboard; sourceTree = "<group>"; };
+		7135A01B2859C5B20058B454 /* Chess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chess.swift; sourceTree = "<group>"; };
+		7135A01E285A1F730058B454 /* environment_blur.exr */ = {isa = PBXFileReference; lastKnownFileType = file; path = environment_blur.exr; sourceTree = "<group>"; };
+		7135A01F285A1F870058B454 /* environment.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = environment.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,11 +68,18 @@
 		7135A000285774C00058B454 /* ARGobang */ = {
 			isa = PBXGroup;
 			children = (
+				7135A01D285A1F340058B454 /* Asset */,
+				7135A01328578AC20058B454 /* Board.swift */,
+				7135A01528578BEF0058B454 /* Dimensions.swift */,
+				7135A01128577CD80058B454 /* GameState.swift */,
 				7135A001285774C00058B454 /* AppDelegate.swift */,
 				7135A003285774C00058B454 /* ContentView.swift */,
 				7135A005285774C00058B454 /* Experience.rcproject */,
 				7135A007285774C40058B454 /* Assets.xcassets */,
 				7135A009285774C40058B454 /* Preview Content */,
+				7135A017285794200058B454 /* Util.swift */,
+				7135A0192858E34C0058B454 /* ARStoryboard.storyboard */,
+				7135A01B2859C5B20058B454 /* Chess.swift */,
 			);
 			path = ARGobang;
 			sourceTree = "<group>";
@@ -68,6 +90,15 @@
 				7135A00A285774C40058B454 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		7135A01D285A1F340058B454 /* Asset */ = {
+			isa = PBXGroup;
+			children = (
+				7135A01E285A1F730058B454 /* environment_blur.exr */,
+				7135A01F285A1F870058B454 /* environment.jpg */,
+			);
+			path = Asset;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -130,6 +161,8 @@
 			files = (
 				7135A00B285774C40058B454 /* Preview Assets.xcassets in Resources */,
 				7135A008285774C40058B454 /* Assets.xcassets in Resources */,
+				7135A01A2858E34C0058B454 /* ARStoryboard.storyboard in Resources */,
+				7135A020285A1F870058B454 /* environment.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,6 +174,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				7135A004285774C00058B454 /* ContentView.swift in Sources */,
+				7135A01228577CD80058B454 /* GameState.swift in Sources */,
+				7135A01628578BEF0058B454 /* Dimensions.swift in Sources */,
+				7135A01428578AC20058B454 /* Board.swift in Sources */,
+				7135A01C2859C5B20058B454 /* Chess.swift in Sources */,
+				7135A018285794200058B454 /* Util.swift in Sources */,
 				7135A002285774C00058B454 /* AppDelegate.swift in Sources */,
 				7135A006285774C00058B454 /* Experience.rcproject in Sources */,
 			);
@@ -273,6 +311,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ARGobang/Preview Content\"";
+				DEVELOPMENT_TEAM = X922A69RQ8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
@@ -303,6 +342,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ARGobang/Preview Content\"";
+				DEVELOPMENT_TEAM = X922A69RQ8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
