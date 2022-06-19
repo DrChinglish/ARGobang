@@ -12,9 +12,9 @@ class Chess{
     class func chess(for player:GamePlayer)->SCNNode{
         switch player {
         case .x:
-            return whitechess()
-        case .o:
             return blackchess()
+        case .o:
+            return whitechess()
         }
     }
     class func whitechess()->SCNNode{

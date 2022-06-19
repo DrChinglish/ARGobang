@@ -8,6 +8,23 @@
 import Foundation
 
 typealias GamePosition = (x:Int, y:Int)
+struct GameHistoryMeta{
+    let totalGames:Int
+    let humanWins:Int
+    init(games:[GameHistory]){
+        var total = 0
+        var human = 0
+        for game in games {
+            if game.winHuman{
+                human+=1
+            }
+            total+=1
+        }
+        totalGames = total
+        humanWins = human
+    }
+}
+
 
 enum GamePlayerType:String {
     case human = "human"
@@ -30,14 +47,13 @@ enum GameAction {
     case move(from:GamePosition, to:GamePosition)
 }
 
-/// our completely immutable implementation of Tic-Tac-Toe
+
 struct GameState {
     let currentPlayer:GamePlayer
     let mode:GameMode
     let board:[[String]]
     
-    /// When you create a new game (GameState) you get a certain default state, which you cant
-    /// modify in any way
+    
     init() {
         self.init(currentPlayer: arc4random_uniform(2) == 0 ? .x : .o,  // random start player
                   mode: .put,   // start mode is to put/drop pieces
@@ -53,43 +69,15 @@ struct GameState {
         self.board = board
     }
     
-    // perform action in the game, if successful returns new GameState
-    func perform(action:GameAction) -> GameState? {
-        switch action {
-        case .put(let at):
-            // are we in "put" mode and is the destination square empty?
-            guard case .put = mode,
-                  board[at.x][at.y] == "" else { return nil }
-            
-            // generate a new board state
-            var newBoard = board
-            newBoard[at.x][at.y] = currentPlayer.rawValue
-            
-            
-            // generate new game state and return it
-            return GameState(currentPlayer: currentPlayer == .x ? .o : .x,
-                             mode: .put,
-                             board: newBoard)
-            
-        case .move(let from, let to):
-            // are we in "move" mode and does the from piece match the current player
-            // and is the destination square empty?
-            guard case .move = mode,
-                  board[from.x][from.y] == currentPlayer.rawValue,
-                  board[to.x][to.y] == "" else { return nil }
-            
-            // generate a new board state
-            var newBoard = board
-            newBoard[from.x][from.y] = ""
-            newBoard[to.x][to.y] = currentPlayer.rawValue
-            
-            // generate new game state and return it
-            return GameState(currentPlayer: currentPlayer == .x ? .o : .x,
-                             mode: .move,
-                             board: newBoard)
-            
-        }
+    //perform a put action on a position
+    func perform(at position:GamePosition)->GameState?{
+        guard board[position.x][position.y] == "" else {return nil}
+        var newboard = board
+        newboard[position.x][position.y] = currentPlayer.rawValue
+        return GameState(currentPlayer: currentPlayer == .x ?.o : .x, mode: .put, board: newboard)
     }
+    
+    
     
     
     
@@ -136,20 +124,28 @@ struct GameState {
                 if chesstype == ""{
                     return false
                 }
+                var found = true
                 for i in 0..<5{
-                    guard (i+position.0)<19,(i+position.1)<19 else{break}
+                    guard (i+position.0)<19,(i+position.1)<19 else{
+                        found = false
+                        break
+                    }
                     if(board[i+position.0][i+position.1]==chesstype){
                         checkstatus[i+position.0][i+position.1] |= 0x1
                         continue
                     }else{
+                        found = false
                         break
                     }
+                }
+                if found {
+                    return true
                 }
                 for i in 0..<5{
                     guard(i+position.0)<19,(position.1-i)>=0
                     else{return false}
                     if(board[i+position.0][position.1-i]==chesstype){
-                        checkstatus[i+position.0][position.1-i] |= 0x1
+                        checkstatus[i+position.0][position.1-i] |= 0x8
                         continue
                     }else{
                         return false
@@ -161,10 +157,11 @@ struct GameState {
             //1.left to right
             //2.top to bottom
             //3.top left to bottom right
+            //4.top right to bottom left
             //use a 19x19 array of int to tag if they were checked
             //say a chess has several state represented in 0/1 bit
-            //e.g. 001B means this chess is checked accross
-            //     HVA   Horizontal Vertical Accross
+            //e.g. 0001B means this chess is checked accross
+            //     AHVA   Horizontal Vertical Accross
             //
             for i in 0..<19{
                 for j in 0..<19{
@@ -178,7 +175,7 @@ struct GameState {
                             return GamePlayer(rawValue: board[i][j])
                         }
                     }
-                    if checkstatus[i][j] & 0x1 == 0{//do A check
+                    if checkstatus[i][j] & 0x9 != 0x9{//do A check
                         if checkA(at: (i,j)){
                             return GamePlayer(rawValue: board[i][j])
                         }

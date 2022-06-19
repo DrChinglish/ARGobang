@@ -8,7 +8,7 @@
 import SwiftUI
 import ARKit
 import UIKit
-
+import CoreData
 struct ContentView : View {
     var body: some View {
         return ARViewContainer().edgesIgnoringSafeArea(.all)
@@ -34,9 +34,15 @@ struct ARViewContainer: UIViewControllerRepresentable {
 class GobangController:UIViewController,ARSCNViewDelegate{
     
     @IBOutlet weak var planeSearchLabel: UILabel!
+    @IBAction func didValuechanged(_ sender: Any){
+        updateAIType()
+    }
     @IBOutlet weak var planeSearchOverlay: UIView!
     @IBOutlet weak var gameStateLabel: UILabel!
     @IBOutlet weak var startbutton:UIButton!
+    @IBOutlet weak var AISegmentControl:UISegmentedControl!
+    @IBOutlet weak var AISegmentControl2:UISegmentedControl!
+    @IBOutlet weak var restartButton:UIButton!
     @IBAction func didTapStartOver(_ sender: Any) {
         reset()
         startbutton.isHidden = true
@@ -80,11 +86,43 @@ class GobangController:UIViewController,ARSCNViewDelegate{
         didSet{
             //state label
             if let winner = gamestate.currentWinner{
-                let alert = UIAlertController(title: "Game Over", message: "\(winner.rawValue) wins!!!!", preferredStyle: .alert)
-                                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { action in
-                                    self.reset()
-                                }))
-                                present(alert, animated: true, completion: nil)
+                if playerType[GamePlayer.x] == .human && playerType[GamePlayer.o] == .ai{
+                    DispatchQueue.main.async {
+                        
+                        let delegate = UIApplication.shared.delegate as! AppDelegate
+                        let context = delegate.persistentContainer.viewContext
+                        
+                        let gameEntity = NSEntityDescription.entity(forEntityName: "GameHistory", in: context)
+                        let game = GameHistory(entity: gameEntity!, insertInto: context)
+                        game.winHuman = self.playerType[winner] == .human ? true : false
+                        game.time = Date.init(timeIntervalSince1970: Date.timeIntervalBetween1970AndReferenceDate+Date.timeIntervalSinceReferenceDate)
+                        let gamesRequest: NSFetchRequest<GameHistory> = GameHistory.fetchRequest()
+                        let games = try context.fetch(gamesRequest)
+                        gameHistory = games
+                        gameHistoryMeta = GameHistoryMeta(games: games)
+                        do {
+                            try context.save()
+                        }catch{
+                            let error = error as NSError
+                            fatalError("Unresolved error \(error), \(error.userInfo)")
+                        }
+                        
+                        
+                    }
+                }
+                DispatchQueue.main.async {
+                    let winnerstring = winner == .x ? "黑棋" : "白棋"
+                    print("winner!")
+                    let alert = UIAlertController(title: "游戏结束r", message: "\(winnerstring) 获胜!!!!", preferredStyle: .alert)
+                                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { action in
+                                        self.reset()
+                                    }))
+                    self.present(alert, animated: true, completion: nil)
+                }
+            }else{
+                if currentPlane != nil{
+                    newTurn()
+                }
             }
         }
     }
@@ -93,22 +131,58 @@ class GobangController:UIViewController,ARSCNViewDelegate{
     var floorNode:SCNNode?
     var draggingFrom:GamePosition? = nil
     var draggingFromPosition:SCNVector3? = nil
+    var gameHistoryMeta:GameHistoryMeta? = nil
+    var gameHistory:[GameHistory]? = nil
+    
+    var AItype1 = AIType.balanced
+    var AItype2:AIType = AIType.balanced
+    
+    private func updateAIType(){
         
+        switch AISegmentControl!.selectedSegmentIndex{
+        case 0: AItype1 = AIType.balanced
+        case 1: AItype1 =  AIType.offensive
+        case 2: AItype1 =  AIType.defensive
+        default:
+            AItype1 =  AIType.balanced
+        }
+        switch AISegmentControl2!.selectedSegmentIndex{
+        case 0: AItype2 = AIType.balanced
+        case 1: AItype2 =  AIType.offensive
+        case 2: AItype2 =  AIType.defensive
+        default:
+            AItype2 =  AIType.balanced
+        }
+        
+    }
+   
         // from demo APP
         // Use average of recent virtual object distances to avoid rapid changes in object scale.
         var recentVirtualObjectDistances = [CGFloat]()
         
         override func viewDidLoad() {
             super.viewDidLoad()
+            let delegate = UIApplication.shared.delegate as! AppDelegate
+            let context = delegate.persistentContainer.viewContext
+            
+            
+            do{
+                let gamesRequest: NSFetchRequest<GameHistory> = GameHistory.fetchRequest()
+                let games = try context.fetch(gamesRequest)
+                gameHistory = games
+                gameHistoryMeta = GameHistoryMeta(games: games)
+            }catch{
+                let error = error as NSError
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+            
+            
             startbutton.isHidden = true
             gameStateLabel.isHidden = true
             gamestate = GameState()  // create new game
             
             ARSceneview.delegate = self
-            //sceneView.showsStatistics = true
-            //sceneView.antialiasingMode = .multisampling4X
-            //sceneView.preferredFramesPerSecond = 60
-            //sceneView.contentScaleFactor = 1.3
+            
             ARSceneview.antialiasingMode = .multisampling4X
             
             ARSceneview.automaticallyUpdatesLighting = false
@@ -117,12 +191,10 @@ class GobangController:UIViewController,ARSCNViewDelegate{
             tap.addTarget(self, action: #selector(didTap))
             ARSceneview.addGestureRecognizer(tap)
             
-            let pan = UIPanGestureRecognizer()
-            pan.addTarget(self, action: #selector(didPan))
-            ARSceneview.addGestureRecognizer(pan)
+            
         }
         
-        // from APples app
+        // from Apples app
         func enableEnvironmentMapWithIntensity(_ intensity: CGFloat) {
             if ARSceneview.scene.lightingEnvironment.contents == nil {
                 if let environmentMap = UIImage(named: "Asset/environment_blur.exr") {
@@ -134,7 +206,9 @@ class GobangController:UIViewController,ARSCNViewDelegate{
         
         override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
-            
+            AISegmentControl.isHidden = true
+            AISegmentControl2.isHidden = true
+            restartButton.isHidden = true
             let configuration = ARWorldTrackingConfiguration()
             configuration.planeDetection = .horizontal
             configuration.isLightEstimationEnabled = true
@@ -149,20 +223,26 @@ class GobangController:UIViewController,ARSCNViewDelegate{
         }
         
         private func reset() {
-            let alert = UIAlertController(title: "Game type", message: "Choose players", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "x:HUMAN vs o:AI", style: .default, handler: { action in
+            AISegmentControl.isHidden = true
+            AISegmentControl2.isHidden = true
+            let pastGameInfo = "过去进行的\(gameHistoryMeta!.totalGames)场人机对战游戏中，人类共胜利\(gameHistoryMeta!.humanWins)次，AI共胜利\(gameHistoryMeta!.totalGames - gameHistoryMeta!.humanWins)次"
+            let alert = UIAlertController(title: "游戏模式", message: "请选择游戏模式\n \(pastGameInfo)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "黑棋：人类 vs 白棋：AI", style: .default, handler: { action in
+                self.AISegmentControl.isHidden = false
                 self.beginNewGame([
                     GamePlayer.x: GamePlayerType.human,
                     GamePlayer.o: GamePlayerType.ai
                     ])
             }))
-            alert.addAction(UIAlertAction(title: "x:HUMAN vs o:HUMAN", style: .default, handler: { action in
+            alert.addAction(UIAlertAction(title: "黑棋：人类 vs 白棋：人类", style: .default, handler: { action in
                 self.beginNewGame([
                     GamePlayer.x: GamePlayerType.human,
                     GamePlayer.o: GamePlayerType.human
                     ])
             }))
-            alert.addAction(UIAlertAction(title: "x:AI vs o:AI", style: .default, handler: { action in
+            alert.addAction(UIAlertAction(title: "黑棋：AI vs 白棋：AI", style: .default, handler: { action in
+                self.AISegmentControl.isHidden = false
+                self.AISegmentControl2.isHidden = false
                 self.beginNewGame([
                     GamePlayer.x: GamePlayerType.ai,
                     GamePlayer.o: GamePlayerType.ai
@@ -185,6 +265,26 @@ class GobangController:UIViewController,ARSCNViewDelegate{
         
         private func newTurn() {
             //to implement ai here
+            print("turn for \(playerType[gamestate.currentPlayer]?.rawValue)")
+            guard playerType[gamestate.currentPlayer]! == .ai else{return}
+            let type = gamestate.currentPlayer == .o ? AItype1 : AItype2
+            print("AI thinking")
+            DispatchQueue.global(qos: DispatchQoS.QoSClass.background).async {
+                
+                let position = AIv1(gamestate: self.gamestate, AItype: type).bestPosition
+                print("position is (\(position.x),\(position.y))")
+                DispatchQueue.main.async {
+                    guard let newState = self.gamestate.perform(at: position) else {fatalError()}
+                    let updateGameState = {
+                        DispatchQueue.main.async {
+                            self.gamestate = newState
+                        }
+                    }
+                    self.put(piece: Chess.chess(for: self.gamestate.currentPlayer), at: position, completionHandler: updateGameState)
+                }
+                
+            }
+            
         }
         
         private func removeAllFigures() {
@@ -213,8 +313,7 @@ class GobangController:UIViewController,ARSCNViewDelegate{
      
             
             for (key, figure) in figures {
-                // yeah yeah, I know I should turn GamePosition into a struct and provide it with
-                // Equtable and Hashable then this stupid stringy stuff would be gone. Will do this eventually
+                
                 let xyComponents = key.components(separatedBy: "x")
                 guard xyComponents.count == 2,
                       let x = Int(xyComponents[0]),
@@ -270,68 +369,7 @@ class GobangController:UIViewController,ARSCNViewDelegate{
         
         // MARK: - Gestures
         
-        @objc func didPan(_ sender:UIPanGestureRecognizer) {
-            guard case .move = gamestate.mode,
-                  playerType[gamestate.currentPlayer]! == .human else { return }
-            
-            let location = sender.location(in: ARSceneview)
-            
-            switch sender.state {
-            case .began:
-                print("begin \(location)")
-                guard let square = squareFrom(location: location) else { return }
-                draggingFrom = (x: square.0.0, y: square.0.1)
-                draggingFromPosition = square.1.position
-                
-            case .cancelled:
-                print("cancelled \(location)")
-                revertDrag()
-                
-            case .changed:
-                print("changed \(location)")
-                guard let draggingFrom = draggingFrom,
-                      let groundPosition = groundPositionFrom(location: location) else { return }
-                
-                let action = SCNAction.move(to: SCNVector3(groundPosition.x, groundPosition.y + Float(Dimensions.DRAG_LIFTOFF), groundPosition.z),duration: 0.1)
-                figures["\(draggingFrom.x)x\(draggingFrom.y)"]?.runAction(action)
-                
-            case .ended:
-                print("ended \(location)")
-                
-                guard let draggingFrom = draggingFrom,
-                    let square = squareFrom(location: location),
-                    square.0.0 != draggingFrom.x || square.0.1 != draggingFrom.y,
-                    let newGameState = gamestate.perform(action: .move(from: draggingFrom,to: (x: square.0.0, y: square.0.1))) else {
-                        revertDrag()
-                        return
-                }
-                
-                
-                
-                // move in visual model
-                let toSquareId = "\(square.0.0)x\(square.0.1)"
-                figures[toSquareId] = figures["\(draggingFrom.x)x\(draggingFrom.y)"]
-                figures["\(draggingFrom.x)x\(draggingFrom.y)"] = nil
-                self.draggingFrom = nil
-                
-                // copy pasted insert thingie
-                let newPosition = ARSceneview.scene.rootNode.convertPosition(square.1.position,
-                                                                           from: square.1.parent)
-                let action = SCNAction.move(to: newPosition,
-                                            duration: 0.1)
-                figures[toSquareId]?.runAction(action) {
-                    DispatchQueue.main.async {
-                        self.gamestate = newGameState
-                    }
-                }
-                
-            case .failed:
-                print("failed \(location)")
-                revertDrag()
-                
-            default: break
-            }
-        }
+        
         
         @objc func didTap(_ sender:UITapGestureRecognizer) {
             let location = sender.location(in: ARSceneview)
@@ -345,7 +383,6 @@ class GobangController:UIViewController,ARSCNViewDelegate{
                 let material = SCNMaterial()
                 material.diffuse.contents = UIColor.white
                 
-                // https://stackoverflow.com/questions/30975695/scenekit-is-it-possible-to-cast-an-shadow-on-an-transparent-object/44799498#44799498
                 material.colorBufferWriteMask = SCNColorMask(rawValue: 0)
                 floor.materials = [material]
                 
@@ -359,58 +396,25 @@ class GobangController:UIViewController,ARSCNViewDelegate{
                 return
             }
             
-            // otherwise tap to place board piece.. (if we're in "put" mode)
+            
             guard case .put = gamestate.mode,
                   playerType[gamestate.currentPlayer]! == .human else { return }
             
             if let squareData = squareFrom(location: location),
-               let newGameState = gamestate.perform(action: .put(at: (x: squareData.0.0,y: squareData.0.1))) {
+               let newGameState = gamestate.perform(at:GamePosition(squareData.0)) {
                 
                 put(piece: Chess.chess(for: gamestate.currentPlayer),
                     at: squareData.0) {
-                        DispatchQueue.main.async {
+                        
                             self.gamestate = newGameState
-                        }
+                        
                 }
                 
                 
             }
         }
         
-        /// animates AI moving a piece
-        private func move(from:GamePosition,
-                          to:GamePosition,
-                          completionHandler: (() -> Void)? = nil) {
-            
-            let fromSquareId = "\(from.x)x\(from.y)"
-            let toSquareId = "\(to.x)x\(to.y)"
-            guard let piece = figures[fromSquareId],
-                  let rawDestinationPosition = board.sqr2pos[toSquareId]  else { fatalError() }
-            
-            // this stuff will change once we stop putting nodes directly in world space..
-            let destinationPosition = ARSceneview.scene.rootNode.convertPosition(rawDestinationPosition,
-                                                                               from: board.node)
-            
-            // update visual game state
-            figures[toSquareId] = piece
-            figures[fromSquareId] = nil
-            
-            // create drag and drop animation
-            let pickUpAction = SCNAction.move(to: SCNVector3(piece.position.x, piece.position.y + Float(Dimensions.DRAG_LIFTOFF), piece.position.z),
-                                              duration: 0.25)
-            let moveAction = SCNAction.move(to: SCNVector3(destinationPosition.x, destinationPosition.y + Float(Dimensions.DRAG_LIFTOFF), destinationPosition.z),
-                                            duration: 0.5)
-            let dropDownAction = SCNAction.move(to: destinationPosition,
-                                                duration: 0.25)
-            
-            // run drag and drop animation
-            piece.runAction(pickUpAction) {
-                piece.runAction(moveAction) {
-                    piece.runAction(dropDownAction,
-                                    completionHandler: completionHandler)
-                }
-            }
-        }
+        
         
         /// renders user and AI insert of piece
         private func put(piece:SCNNode,
@@ -440,8 +444,7 @@ class GobangController:UIViewController,ARSCNViewDelegate{
                 // If light estimation is enabled, update the intensity of the model's lights and the environment map
                 if let lightEstimate = self.ARSceneview.session.currentFrame?.lightEstimate {
                     
-                    // Apple divived the ambientIntensity by 40, I find that, atleast with the materials used
-                    // here that it's a big too bright, so I increased to to 50..
+                    
                     self.enableEnvironmentMapWithIntensity(lightEstimate.ambientIntensity / 50)
                 } else {
                     self.enableEnvironmentMapWithIntensity(25)
