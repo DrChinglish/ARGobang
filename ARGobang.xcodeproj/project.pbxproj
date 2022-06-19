@@ -21,7 +21,7 @@
 		7135A020285A1F870058B454 /* environment.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7135A01F285A1F870058B454 /* environment.jpg */; };
 		7135A022285A4EF20058B454 /* AIv1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7135A021285A4EF20058B454 /* AIv1.swift */; };
 		7135A025285F07C90058B454 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7135A024285F07C90058B454 /* CoreData.framework */; };
-		7135A028285F07E30058B454 /* ARGobang.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 7135A026285F07E30058B454 /* ARGobang.xcdatamodeld */; };
+		7135A02C285F74E30058B454 /* ARGobang.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 7135A02A285F74E30058B454 /* ARGobang.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,7 +41,7 @@
 		7135A01F285A1F870058B454 /* environment.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = environment.jpg; sourceTree = "<group>"; };
 		7135A021285A4EF20058B454 /* AIv1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIv1.swift; sourceTree = "<group>"; };
 		7135A024285F07C90058B454 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		7135A027285F07E30058B454 /* ARGobang.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ARGobang.xcdatamodel; sourceTree = "<group>"; };
+		7135A02B285F74E30058B454 /* ARGobang.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ARGobang.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +79,7 @@
 				7135A01D285A1F340058B454 /* Asset */,
 				7135A01328578AC20058B454 /* Board.swift */,
 				7135A01528578BEF0058B454 /* Dimensions.swift */,
+				7135A02A285F74E30058B454 /* ARGobang.xcdatamodeld */,
 				7135A01128577CD80058B454 /* GameState.swift */,
 				7135A001285774C00058B454 /* AppDelegate.swift */,
 				7135A003285774C00058B454 /* ContentView.swift */,
@@ -89,7 +90,6 @@
 				7135A0192858E34C0058B454 /* ARStoryboard.storyboard */,
 				7135A01B2859C5B20058B454 /* Chess.swift */,
 				7135A021285A4EF20058B454 /* AIv1.swift */,
-				7135A026285F07E30058B454 /* ARGobang.xcdatamodeld */,
 			);
 			path = ARGobang;
 			sourceTree = "<group>";
@@ -191,7 +191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7135A028285F07E30058B454 /* ARGobang.xcdatamodeld in Sources */,
+				7135A02C285F74E30058B454 /* ARGobang.xcdatamodeld in Sources */,
 				7135A004285774C00058B454 /* ContentView.swift in Sources */,
 				7135A01228577CD80058B454 /* GameState.swift in Sources */,
 				7135A01628578BEF0058B454 /* Dimensions.swift in Sources */,
@@ -409,12 +409,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		7135A026285F07E30058B454 /* ARGobang.xcdatamodeld */ = {
+		7135A02A285F74E30058B454 /* ARGobang.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				7135A027285F07E30058B454 /* ARGobang.xcdatamodel */,
+				7135A02B285F74E30058B454 /* ARGobang.xcdatamodel */,
 			);
-			currentVersion = 7135A027285F07E30058B454 /* ARGobang.xcdatamodel */;
+			currentVersion = 7135A02B285F74E30058B454 /* ARGobang.xcdatamodel */;
 			path = ARGobang.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
