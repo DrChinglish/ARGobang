@@ -106,6 +106,8 @@
                         <outlet property="AISegmentControl2" destination="ihb-7o-XvE" id="zId-OF-4KJ"/>
                         <outlet property="ARSceneview" destination="Hw6-9u-jd9" id="nuR-oN-vNW"/>
                         <outlet property="gameStateLabel" destination="tmi-ap-zla" id="4gW-4N-860"/>
+                        <outlet property="labelAI1" destination="09V-YR-x51" id="e5U-9B-hmc"/>
+                        <outlet property="labelAI2" destination="aR6-WW-Juq" id="1Na-EF-7Qm"/>
                         <outlet property="planeSearchLabel" destination="QY2-Ho-oxk" id="qJD-A6-1al"/>
                         <outlet property="planeSearchOverlay" destination="hbM-mb-u5w" id="hhc-oO-B7J"/>
                         <outlet property="restartButton" destination="DtW-Fd-8hz" id="sUd-aO-RDR"/>

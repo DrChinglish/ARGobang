@@ -37,6 +37,8 @@ class GobangController:UIViewController,ARSCNViewDelegate{
     @IBAction func didValuechanged(_ sender: Any){
         updateAIType()
     }
+    @IBOutlet weak var labelAI1:UILabel!
+    @IBOutlet weak var labelAI2:UILabel!
     @IBOutlet weak var planeSearchOverlay: UIView!
     @IBOutlet weak var gameStateLabel: UILabel!
     @IBOutlet weak var startbutton:UIButton!
@@ -88,7 +90,6 @@ class GobangController:UIViewController,ARSCNViewDelegate{
             if let winner = gamestate.currentWinner{
                 if playerType[GamePlayer.x] == .human && playerType[GamePlayer.o] == .ai{
                     DispatchQueue.main.async {
-                        
                         let delegate = UIApplication.shared.delegate as! AppDelegate
                         let context = delegate.persistentContainer.viewContext
                         
@@ -96,12 +97,13 @@ class GobangController:UIViewController,ARSCNViewDelegate{
                         let game = GameHistory(entity: gameEntity!, insertInto: context)
                         game.winHuman = self.playerType[winner] == .human ? true : false
                         game.time = Date.init(timeIntervalSince1970: Date.timeIntervalBetween1970AndReferenceDate+Date.timeIntervalSinceReferenceDate)
-                        let gamesRequest: NSFetchRequest<GameHistory> = GameHistory.fetchRequest()
-                        let games = try context.fetch(gamesRequest)
-                        gameHistory = games
-                        gameHistoryMeta = GameHistoryMeta(games: games)
+                        
                         do {
                             try context.save()
+                            let gamesRequest: NSFetchRequest<GameHistory> = GameHistory.fetchRequest()
+                            let games = try context.fetch(gamesRequest)
+                            self.gameHistory = games
+                            self.gameHistoryMeta = GameHistoryMeta(games: games)
                         }catch{
                             let error = error as NSError
                             fatalError("Unresolved error \(error), \(error.userInfo)")
@@ -208,6 +210,8 @@ class GobangController:UIViewController,ARSCNViewDelegate{
             super.viewWillAppear(animated)
             AISegmentControl.isHidden = true
             AISegmentControl2.isHidden = true
+            labelAI1.isHidden = true
+            labelAI1.isHidden = true
             restartButton.isHidden = true
             let configuration = ARWorldTrackingConfiguration()
             configuration.planeDetection = .horizontal
@@ -223,12 +227,16 @@ class GobangController:UIViewController,ARSCNViewDelegate{
         }
         
         private func reset() {
+            restartButton.isHidden = true
             AISegmentControl.isHidden = true
+            labelAI1.isHidden = true
+            labelAI2.isHidden = true
             AISegmentControl2.isHidden = true
             let pastGameInfo = "过去进行的\(gameHistoryMeta!.totalGames)场人机对战游戏中，人类共胜利\(gameHistoryMeta!.humanWins)次，AI共胜利\(gameHistoryMeta!.totalGames - gameHistoryMeta!.humanWins)次"
             let alert = UIAlertController(title: "游戏模式", message: "请选择游戏模式\n \(pastGameInfo)", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "黑棋：人类 vs 白棋：AI", style: .default, handler: { action in
                 self.AISegmentControl.isHidden = false
+                self.labelAI1.isHidden = false
                 self.beginNewGame([
                     GamePlayer.x: GamePlayerType.human,
                     GamePlayer.o: GamePlayerType.ai
@@ -243,6 +251,8 @@ class GobangController:UIViewController,ARSCNViewDelegate{
             alert.addAction(UIAlertAction(title: "黑棋：AI vs 白棋：AI", style: .default, handler: { action in
                 self.AISegmentControl.isHidden = false
                 self.AISegmentControl2.isHidden = false
+                self.labelAI1.isHidden = false
+                self.labelAI2.isHidden = false
                 self.beginNewGame([
                     GamePlayer.x: GamePlayerType.ai,
                     GamePlayer.o: GamePlayerType.ai
@@ -255,6 +265,7 @@ class GobangController:UIViewController,ARSCNViewDelegate{
         }
         
         private func beginNewGame(_ players:[GamePlayer:GamePlayerType]) {
+            restartButton.isHidden = false
             playerType = players
             gamestate = GameState()
             
